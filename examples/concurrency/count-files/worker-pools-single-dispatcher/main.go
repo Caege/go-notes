@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 )
 
 type Results struct {
@@ -13,7 +14,7 @@ type Results struct {
 func main() {
 	jobs := make(chan string)
 	results := make(chan Results)
-	file_counter := 0
+	var fileCounter atomic.Int64
 	active := 0
 	var pending []string
 
@@ -36,7 +37,7 @@ func main() {
 					fullpath := filepath.Join(job, entry.Name())
 
 					if entry.Type().IsRegular() {
-						file_counter++
+						fileCounter.Add(1)
 					}
 
 					if entry.IsDir() {
@@ -58,9 +59,7 @@ func main() {
 
 			active++
 
-			go func() {
-				jobs <- firstJob
-			}()
+			jobs <- firstJob
 
 		}
 
@@ -70,7 +69,7 @@ func main() {
 
 		if active == 0 && len(pending) == 0 {
 			close(jobs)
-			fmt.Println("file count", file_counter)
+			fmt.Println("file count", fileCounter.Load())
 			return
 
 		}
