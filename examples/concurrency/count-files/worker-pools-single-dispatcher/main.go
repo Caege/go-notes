@@ -13,10 +13,10 @@ type Results struct {
 func main() {
 	jobs := make(chan string)
 	results := make(chan Results)
-file_counter := 0
+	file_counter := 0
 	active := 0
 	var pending []string
-	
+
 	pending = append(pending, `C:\`)
 
 	workerCount := 4
@@ -75,7 +75,5 @@ file_counter := 0
 
 		}
 	}
-
-
 
 }
